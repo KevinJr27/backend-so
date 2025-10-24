@@ -28,6 +28,25 @@ export class MySQLBook implements BookRepository {
     ]);
   }
 
+  async getBooks(): Promise<Book[] | null> {
+    const query = `SELECT * FROM books`;
+
+    const rows = await this.db.query(query) as RowDataPacket[];
+
+    if (rows.length == 0) return null
+
+    const books = rows.map(row => (
+      new Book(
+        new BookId(row.id),
+        new BookTitle(row.title),
+        new BookAuthor(row.author),
+        new BookPublishedYear(row.published_year)
+      )
+    ));
+
+    return books;
+  }
+
   async findById(id: BookId): Promise<Book | null> {
     const query = `SELECT * FROM books WHERE id = ?`;
     const rows = await this.db.query(query, [id.getValue()]) as RowDataPacket[];
